@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { NavLink } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -30,6 +31,8 @@ export default function Nav({ openNav, onCloseNav }) {
 
   const upLg = useResponsive('up', 'lg');
 
+  const adminName = localStorage.getItem('name')
+
   useEffect(() => {
     if (openNav) {
       onCloseNav();
@@ -54,7 +57,11 @@ export default function Nav({ openNav, onCloseNav }) {
       <Avatar src={account.photoURL} alt="photoURL" />
 
       <Box sx={{ ml: 2 }}>
-        <Typography variant="subtitle2">{account.displayName}</Typography>
+        <Typography variant="subtitle2">{adminName ||
+          <NavLink to='/login'>
+            Login
+          </NavLink>}
+        </Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {account.role}
