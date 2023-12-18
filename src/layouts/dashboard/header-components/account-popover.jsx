@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import axios from 'axios';
+import { NavLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
@@ -37,9 +39,37 @@ export default function AccountPopover() {
     setOpen(event.currentTarget);
   };
 
+  const token = localStorage.getItem('token')
+
   const handleClose = () => {
     setOpen(null);
+    localStorage.removeItem('token')
+    localStorage.removeItem('name')
   };
+
+  const [adminData, setAdminData] = useState([]);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (token) {
+          const response = await axios.get('http://localhost:3002/user/admin-account', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          setAdminData(response.data.panelData);
+          localStorage.setItem('name', response.data.panelData.panelName)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  });
+
 
   return (
     <>
@@ -84,12 +114,19 @@ export default function AccountPopover() {
         }}
       >
         <Box sx={{ my: 1.5, px: 2 }}>
-          <Typography variant="subtitle2" noWrap>
-            {account.displayName}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
-          </Typography>
+          {!token ? <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+            <NavLink to='/login'>
+              Login
+            </NavLink>
+          </Typography> :
+            <>
+              <Typography variant="subtitle2" noWrap>
+                {adminData && adminData.panelName}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+                {adminData && adminData.panelEmail}
+              </Typography>
+            </>}
         </Box>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -102,14 +139,14 @@ export default function AccountPopover() {
 
         <Divider sx={{ borderStyle: 'dashed', m: 0 }} />
 
-        <MenuItem
+        {token && <MenuItem
           disableRipple
           disableTouchRipple
           onClick={handleClose}
           sx={{ typography: 'body2', color: 'error.main', py: 1.5 }}
         >
           Logout
-        </MenuItem>
+        </MenuItem>}
       </Popover>
     </>
   );
