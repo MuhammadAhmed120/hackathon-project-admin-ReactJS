@@ -8,7 +8,7 @@ export default function AppPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard | Admin Panel </title>
+        <title> Student Attendance | Admin Panel </title>
       </Helmet>
 
       <AppView />
