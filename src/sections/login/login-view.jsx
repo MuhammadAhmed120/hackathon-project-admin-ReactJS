@@ -35,8 +35,30 @@ export default function LoginView() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    localStorage.removeItem('token')
-  })
+    const token = localStorage.getItem('token')
+    const validateToken = async () => {
+      try {
+        const response = await axios.post('http://localhost:3002/tokenverify', null, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        if (response.status === 200) {
+          navigate('/')
+        } else {
+          localStorage.removeItem('name')
+          localStorage.removeItem('email')
+          localStorage.removeItem('token')
+        }
+      } catch (error) {
+        localStorage.removeItem('name')
+        localStorage.removeItem('email')
+        localStorage.removeItem('token')
+      }
+    }
+    validateToken()
+  }, [navigate])
 
   const validateEmail = () => {
     const isValid = /\S+@\S+\.\S+/.test(email);
@@ -55,6 +77,7 @@ export default function LoginView() {
     const isPasswordValid = validatePassword();
 
     if (isEmailValid && isPasswordValid) {
+      setLoading(true)
       try {
         // Make a POST request using Axios
         const response = await axios.post(
@@ -65,25 +88,33 @@ export default function LoginView() {
           }
         );
 
-        console.log('Response:', response);
         setValidateError('')
-        setLoading(true)
 
         localStorage.setItem('token', response.data.token)
+        localStorage.setItem('name', response.data.panel.panelName)
+        localStorage.setItem('email', response.data.panel.panelEmail)
 
         const loginToken = localStorage.getItem('token')
-        if (loginToken) {
-          console.log("YES")
+        const loginName = localStorage.getItem('name')
+        const loginEmail = localStorage.getItem('email')
+
+        setLoading(false)
+        if (loginToken && loginName && loginEmail) {
           navigate('/user');
         }
       } catch (error) {
-        // Handle error scenarios here
+        if (error.code === "ERR_NETWORK") {
+          setValidateError('Network error, please try again later.')
+          setEmail('')
+          setPassword('')
+          setLoading(false)
+          return;
+        }
         setValidateError(error.response.data.message)
-        console.error('Error:', error);
+        setLoading(false)
       }
     }
   };
-
 
   const renderForm = (
     <>
@@ -109,7 +140,7 @@ export default function LoginView() {
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                  <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                  <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} color={showPassword ? 'magenta' : ''} />
                 </IconButton>
               </InputAdornment>
             ),
