@@ -34,12 +34,16 @@ export default function UserPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [course, setCourse] = useState('');
+  const [userId, setUserId] = useState('');
+  const [number, setNumber] = useState('');
+  const [username, setUsername] = useState('');
   const [emailError, setEmailError] = useState(false);
+  const [nameError, setNameError] = useState(false);
+  const [courseError, setCourseError] = useState(false);
+  const [userIdError, setUserIdError] = useState(false);
+  const [numberError, setNumberError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
-  const [course, setCourse] = useState(''); // New state for course
-  const [userId, setUserId] = useState(''); // New state for user ID
-  const [number, setNumber] = useState(''); // New state for user number
-  const [username, setUsername] = useState(''); // New state for user name
 
   const [validateError, setValidateError] = useState('')
 
@@ -53,6 +57,30 @@ export default function UserPage() {
     return isValid;
   };
 
+  const validateName = () => {
+    const isValid = username.trim().length > 0;
+    setNameError(!isValid);
+    return isValid;
+  };
+
+  const validateCourse = () => {
+    const isValid = course.trim().length > 0;
+    setCourseError(!isValid);
+    return isValid;
+  };
+
+  const validateUserId = () => {
+    const isValid = userId.trim().length > 0;
+    setUserIdError(!isValid);
+    return isValid;
+  };
+
+  const validateNumber = () => {
+    const isValid = number.trim().length > 0;
+    setNumberError(!isValid);
+    return isValid;
+  };
+
   const validatePassword = () => {
     const isValid = password.length >= 6;
     setPasswordError(!isValid);
@@ -61,11 +89,21 @@ export default function UserPage() {
 
   const handleRegister = async () => {
     const isEmailValid = validateEmail();
+    const isNameValid = validateName();
+    const isCourseValid = validateCourse();
+    const isUserIdValid = validateUserId();
+    const isNumberValid = validateNumber();
     const isPasswordValid = validatePassword();
 
-    if (isEmailValid && isPasswordValid) {
+    if (
+      isEmailValid &&
+      isPasswordValid &&
+      isNameValid &&
+      isCourseValid &&
+      isUserIdValid &&
+      isNumberValid
+    ) {
       try {
-        // Make a POST request using Axios
         const response = await axios.post(
           'http://localhost:3002/register/user',
           {
@@ -136,88 +174,115 @@ export default function UserPage() {
         open={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         onClick={(e) => e.preventDefault()}
-        sx={{
-          maxWidth: '100%',
-          width: 400,
+        PaperProps={{
+          sx: {
+            maxWidth: '100%',
+            width: '350px',
+            minWidth: '35%',
+
+            backgroundColor: '#f7f7f7',
+            boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.1)',
+            padding: '20px'
+          },
         }}
       >
+        <div style={{ color: "#333" }}>
 
-        <h2 style={{ textAlign: 'center', padding: '0 80px' }}>Register a Student</h2>
+          {/* <h2 style={{ marginLeft: 'auto', marginRight: 'auto', padding: '0 0px', width: 'fit-content', borderBottom: '1px solid #74828f' }}>Register a Student</h2> */}
 
-        <Stack sx={{ width: '90%', margin: '15px auto' }} spacing={3}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #ddd', marginBottom: '20px', paddingBottom: '15px' }}>
+            <h2 style={{ margin: '0', padding: '0', fontWeight: 'bold', fontSize: '24px', color: '#333' }}>Register a Student</h2>
+            <IconButton onClick={() => setIsDrawerOpen(false)} size="small" style={{ padding: '8px' }}>
+              <Iconify icon="bi:x-lg" style={{ fontSize: '24px', color: '#74828f' }} />
+            </IconButton>
+          </div>
 
-          <TextField
-            name="name"
-            label="Name"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+          <Stack sx={{ width: '100%', margin: '15px auto' }} spacing={3}>
 
-          <TextField
-            name="email"
-            label="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={emailError}
-            helperText={emailError ? 'Please enter a valid email' : ''}
-          />
+            <TextField
+              name="name"
+              label="Student Name"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              error={nameError}
+              helperText={nameError ? 'Please enter a valid name.' : ''}
+            />
 
-          <TextField
-            name="course"
-            label="Course"
-            value={course}
-            onChange={(e) => setCourse(e.target.value)}
-          />
+            <TextField
+              name="email"
+              label="Student Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={emailError}
+              helperText={emailError ? 'Please enter a valid email.' : ''}
+            />
 
-          <TextField
-            name="userId"
-            label="User ID"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-          />
+            <TextField
+              name="course"
+              label="Student Course"
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
+              error={courseError}
+              helperText={courseError ? 'Please enter a valid course.' : ''}
+            />
 
-          <TextField
-            name="number"
-            label="Number"
-            value={number}
-            onChange={(e) => setNumber(e.target.value)}
-          />
+            <TextField
+              name="userId"
+              label="Student ID"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              error={userIdError}
+              helperText={userIdError ? 'Please enter a valid ID.' : ''}
+            />
 
-          <TextField
-            name="password"
-            label="Password"
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={passwordError}
-            helperText={passwordError ? 'Password must be at least 6 characters' : ''}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                    <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+            <TextField
+              name="number"
+              label="Student Number"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+              error={numberError}
+              helperText={numberError ? 'Please enter a valid number.' : ''}
+            />
 
-          <Stack sx={{ margin: '20px 0', color: 'red' }}>
-            {validateError}
+            <TextField
+              name="password"
+              label="Student Password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={passwordError}
+              helperText={passwordError ? 'Password must be at least 6 characters' : ''}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                      <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} color={showPassword ? 'magenta' :  ''} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Stack sx={{ margin: '20px 0', color: 'red' }}>
+              {validateError}
+            </Stack>
+
+            <LoadingButton
+              fullWidth
+              size="large"
+              type="submit"
+              variant="contained"
+              color="inherit"
+              onClick={handleRegister}
+              loading={loading}
+              endIcon={<Iconify icon="bi:person-plus-fill" style={{ fontSize: '20px', marginLeft: '8px' }} />}
+            >
+              Register Student
+            </LoadingButton>
+
           </Stack>
 
-          <LoadingButton
-            fullWidth
-            size="large"
-            type="submit"
-            variant="contained"
-            color="inherit"
-            onClick={handleRegister}
-            loading={loading}
-          >
-            Register Student
-          </LoadingButton>
-        </Stack>
+        </div>
       </Drawer>
 
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -234,11 +299,11 @@ export default function UserPage() {
             <Table sx={{ minWidth: 800 }}>
               <UserTableHead
                 headLabel={[
-                  { id: 'name', label: 'Name' },
+                  { id: 'roll', label: 'Roll No' },
+                  { id: 'name', label: 'Name', align: 'center' },
                   { id: 'password', label: 'Password' },
                   { id: 'course', label: 'Course' },
                   { id: 'email', label: 'Email', align: 'center' },
-                  { id: 'roll', label: 'Roll No' },
                   { id: '' },
                 ]}
               />
@@ -253,7 +318,7 @@ export default function UserPage() {
                     avatarUrl={user.userProfileImage}
                     isVerified={user.userEmail}
                     selected={selected.indexOf(user.name) !== -1}
-                    handleClick={(event) => handleClick(event, user.name)}
+                    handleClick={(event) => handleClick(event, user.userName)}
                   />
                 ))}
               </TableBody>
