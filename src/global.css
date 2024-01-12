@@ -1,2 +1,6 @@
 /* scrollbar */
 @import 'simplebar-react/dist/simplebar.min.css';
+
+.css-1dy2dt4-MuiButtonBase-root-MuiAccordionSummary-root:hover {
+    background-color: #eee !important;
+}
