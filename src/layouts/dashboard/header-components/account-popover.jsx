@@ -43,8 +43,6 @@ export default function AccountPopover() {
 
   const handleClose = () => {
     setOpen(null);
-    localStorage.removeItem('token')
-    localStorage.removeItem('name')
   };
 
   const [adminData, setAdminData] = useState([]);
@@ -59,6 +57,7 @@ export default function AccountPopover() {
               Authorization: `Bearer ${token}`
             }
           });
+          
           setAdminData(response.data.panelData);
           localStorage.setItem('name', response.data.panelData.panelName)
         }
@@ -139,14 +138,18 @@ export default function AccountPopover() {
 
         <Divider sx={{ borderStyle: 'dashed', m: 0 }} />
 
-        {token && <MenuItem
+        {/* {token && <MenuItem
           disableRipple
           disableTouchRipple
-          onClick={handleClose}
+          onClick={() => {
+            localStorage.removeItem('name')
+            localStorage.removeItem('token')
+            setOpen(null)
+          }}
           sx={{ typography: 'body2', color: 'error.main', py: 1.5 }}
         >
           Logout
-        </MenuItem>}
+        </MenuItem>} */}
       </Popover>
     </>
   );
