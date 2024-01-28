@@ -34,19 +34,16 @@ const MENU_OPTIONS = [
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
+  const [adminData, setAdminData] = useState([]);
+  const token = localStorage.getItem('token')
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
 
-  const token = localStorage.getItem('token')
-
   const handleClose = () => {
     setOpen(null);
   };
-
-  const [adminData, setAdminData] = useState([]);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,20 +51,19 @@ export default function AccountPopover() {
         if (token) {
           const response = await axios.get('http://localhost:3002/user/admin-account', {
             headers: {
-              Authorization: `Bearer ${token}`
+              'Authorization': `Bearer ${token}`
             }
           });
-          
+
           setAdminData(response.data.panelData);
           localStorage.setItem('name', response.data.panelData.panelName)
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.log('Error fetching data:', error);
       }
     };
-
     fetchData();
-  });
+  }, [token]);
 
 
   return (
