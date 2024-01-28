@@ -1,7 +1,9 @@
+import axios from 'axios';
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import Stack from '@mui/material/Stack';
+import { LoadingButton } from '@mui/lab';
 import Avatar from '@mui/material/Avatar';
 import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
@@ -9,23 +11,41 @@ import MenuItem from '@mui/material/MenuItem';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import { Box, Modal, Button } from '@mui/material';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  maxWidth: "90%",
+  width: 400,
+  bgcolor: '#fafafa',
+  border: 'none',
+  borderRadius: 1,
+  boxShadow: 24,
+  p: 3,
+};
+
 export default function UserTableRow({
-  selected,
-  name,
+  uid,
+  status,
   avatarUrl,
+  name,
   company,
   role,
   isVerified,
-  status,
+  selected,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [loading] = useState(false);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -34,6 +54,31 @@ export default function UserTableRow({
   const handleCloseMenu = () => {
     setOpen(null);
   };
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+  };
+
+  const handleOpenModal = () => {
+    setModalOpen(true)
+  };
+
+  const handleDelete = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      if (token) {
+        const headers = {
+          'Authorization': `Bearer ${token}`
+        }
+
+        const deleteUser = await axios.post('http://localhost:3002/user/user-delete', uid, { headers })
+
+        console.log(deleteUser)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <>
@@ -66,6 +111,23 @@ export default function UserTableRow({
         </TableCell>
       </TableRow>
 
+      <Modal
+        open={modalOpen}
+        onClose={handleCloseModal}
+      >
+        <Box sx={style}>
+          <div className='flex flex-col gap-10'>
+            <h1 className='text-lg sm:text-xl text-red-500'>
+              Do you want to delete?
+            </h1>
+            <div className='flex gap-2 self-end'>
+              <Button variant='outlined' onClick={handleCloseModal}>Cancel</Button>
+              <LoadingButton color='error' variant='contained' loading={loading} onClick={handleDelete}>Delete</LoadingButton>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
       <Popover
         open={!!open}
         anchorEl={open}
@@ -81,7 +143,7 @@ export default function UserTableRow({
           Edit
         </MenuItem>
 
-        <MenuItem onClick={handleCloseMenu} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={handleOpenModal} sx={{ color: 'error.main' }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
         </MenuItem>
@@ -91,6 +153,7 @@ export default function UserTableRow({
 }
 
 UserTableRow.propTypes = {
+  uid: PropTypes.any,
   avatarUrl: PropTypes.any,
   company: PropTypes.any,
   handleClick: PropTypes.func,
