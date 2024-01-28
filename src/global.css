@@ -1,5 +1,8 @@
 /* scrollbar */
 @import 'simplebar-react/dist/simplebar.min.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .css-1dy2dt4-MuiButtonBase-root-MuiAccordionSummary-root:hover {
     background-color: #eee !important;
