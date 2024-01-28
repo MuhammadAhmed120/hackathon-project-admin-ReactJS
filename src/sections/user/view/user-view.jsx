@@ -32,14 +32,18 @@ export default function UserPage() {
 
   const [loading, setLoading] = useState(false);
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [course, setCourse] = useState('');
   const [userId, setUserId] = useState('');
   const [number, setNumber] = useState('');
-  const [username, setUsername] = useState('');
-  const [emailError, setEmailError] = useState(false);
+  const [password, setPassword] = useState('');
+  const [imgError, setImgError] = useState();
   const [nameError, setNameError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
   const [courseError, setCourseError] = useState(false);
   const [userIdError, setUserIdError] = useState(false);
   const [numberError, setNumberError] = useState(false);
@@ -104,16 +108,23 @@ export default function UserPage() {
       isNumberValid
     ) {
       try {
+        const headers = {
+          'Content-Type': 'multipart/form-data'
+        }
+
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        formData.append('userEmail', email);
+        formData.append('userName', username);
+        formData.append('userPassword', password);
+        formData.append('userCourse', course);
+        formData.append('userID', userId);
+        formData.append('userNumber', number);
+
         const response = await axios.post(
           'http://localhost:3002/register/user',
-          {
-            userEmail: email,
-            userName: username,
-            userPassword: password,
-            userCourse: course,
-            userID: userId,
-            userNumber: number,
-          }
+          formData,
+          { headers }
         );
 
         console.log('Response:', response);
@@ -128,7 +139,6 @@ export default function UserPage() {
           setFetchAgain(true)
         }
       } catch (error) {
-        // Handle error scenarios here
         setValidateError(error.response.data.message)
         console.error('Error:', error);
       }
@@ -153,6 +163,21 @@ export default function UserPage() {
     setSelected(newSelected);
   };
 
+  const handleFile = (event) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setImgError('File size exceeds 5MB. Please select a smaller file.');
+      } else {
+        setSelectedImage(URL.createObjectURL(file));
+        setImageFile(file)
+        setImgError('');
+      }
+    }
+  };
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -173,7 +198,6 @@ export default function UserPage() {
         anchor="right"
         open={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        onClick={(e) => e.preventDefault()}
         PaperProps={{
           sx: {
             maxWidth: '100%',
@@ -186,9 +210,7 @@ export default function UserPage() {
           },
         }}
       >
-        <div style={{ color: "#333" }}>
-
-          {/* <h2 style={{ marginLeft: 'auto', marginRight: 'auto', padding: '0 0px', width: 'fit-content', borderBottom: '1px solid #74828f' }}>Register a Student</h2> */}
+        <div className='text-[#333]'>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #ddd', marginBottom: '20px', paddingBottom: '15px' }}>
             <h2 style={{ margin: '0', padding: '0', fontWeight: 'bold', fontSize: '24px', color: '#333' }}>Register a Student</h2>
@@ -198,6 +220,26 @@ export default function UserPage() {
           </div>
 
           <Stack sx={{ width: '100%', margin: '15px auto' }} spacing={3}>
+
+            {/* USER IMAGE UPLOAD */}
+            <div>
+              <div className='flex gap-4 items-end'>
+                <img src={selectedImage || "https://toppng.com/uploads/preview/user-account-management-logo-user-icon-11562867145a56rus2zwu.png"} className='w-24 h-24 rounded-full object-cover' alt="user" />
+                <Button
+                  variant="contained"
+                  component="label"
+                >
+                  Upload File
+                  <input
+                    accept="image/*"
+                    type="file"
+                    onChange={handleFile}
+                    hidden
+                  />
+                </Button>
+              </div>
+              <p className='text-sm text-red-500 mt-2'>{imgError && imgError}</p>
+            </div>
 
             <TextField
               name="name"
@@ -256,7 +298,7 @@ export default function UserPage() {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                      <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} color={showPassword ? 'magenta' :  ''} />
+                      <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} color={showPassword ? 'magenta' : ''} />
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -307,15 +349,17 @@ export default function UserPage() {
                   { id: '' },
                 ]}
               />
+              {console.log(userData)}
               <TableBody>
                 {userData && userData.slice().reverse().map((user) => (
                   <UserTableRow
                     key={user._id}
-                    name={user.userName}
-                    role={user.userCourse || 'None'}
-                    company={user.userPassword}
+                    uid={user._id}
                     status={user.userID || 'n/a'}
                     avatarUrl={user.userProfileImage}
+                    name={user.userName}
+                    company={user.userPassword}
+                    role={user.userCourse || 'None'}
                     isVerified={user.userEmail}
                     selected={selected.indexOf(user.name) !== -1}
                     handleClick={(event) => handleClick(event, user.userName)}
