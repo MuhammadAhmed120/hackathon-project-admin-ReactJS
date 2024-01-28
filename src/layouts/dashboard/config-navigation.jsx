@@ -10,14 +10,14 @@ const token = localStorage.getItem('token')
 
 const navConfig = [
   {
-    title: 'students',
-    path: '/user',
-    icon: icon('ic_user'),
-  },
-  {
     title: 'attendance',
     path: '/',
     icon: icon('ic_analytics'),
+  },
+  {
+    title: 'students',
+    path: '/user',
+    icon: icon('ic_user'),
   },
   {
     title: token ? 'logout' : 'login',
