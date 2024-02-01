@@ -40,7 +40,7 @@ export default function LoginView() {
       try {
         const response = await axios.post('http://localhost:3002/tokenverify', null, {
           headers: {
-            Authorization: `Bearer ${token}`
+            "Authorization": `Bearer ${token}`
           }
         })
 
@@ -94,9 +94,9 @@ export default function LoginView() {
         localStorage.setItem('name', response.data.panel.panelName)
         localStorage.setItem('email', response.data.panel.panelEmail)
 
-        const loginToken = localStorage.getItem('token')
-        const loginName = localStorage.getItem('name')
-        const loginEmail = localStorage.getItem('email')
+        const loginToken = await localStorage.getItem('token')
+        const loginName = await localStorage.getItem('name')
+        const loginEmail = await localStorage.getItem('email')
 
         setLoading(false)
         if (loginToken && loginName && loginEmail) {

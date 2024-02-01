@@ -55,6 +55,19 @@ export default function UserPage() {
   const [fetchAgain, setFetchAgain] = useState(false);
 
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3002/user/all-users');
+        setUserData(response.data.allUserData)
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    }
+    fetchData()
+  }, [fetchAgain]);
+
+
   const validateEmail = () => {
     const isValid = /\S+@\S+\.\S+/.test(email);
     setEmailError(!isValid);
@@ -176,20 +189,6 @@ export default function UserPage() {
       }
     }
   };
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:3002/user/all-users');
-        setUserData(response.data.allUserData)
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    }
-    fetchData()
-  }, [fetchAgain]);
-
 
   return (
     <Container>
@@ -354,7 +353,7 @@ export default function UserPage() {
                 {userData && userData.slice().reverse().map((user) => (
                   <UserTableRow
                     key={user._id}
-                    uid={user._id}
+                    UID={user._id}
                     status={user.userID || 'n/a'}
                     avatarUrl={user.userProfileImage}
                     name={user.userName}

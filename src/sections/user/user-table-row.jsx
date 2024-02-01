@@ -33,7 +33,7 @@ const style = {
 };
 
 export default function UserTableRow({
-  uid,
+  UID,
   status,
   avatarUrl,
   name,
@@ -45,7 +45,7 @@ export default function UserTableRow({
 }) {
   const [open, setOpen] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -64,6 +64,7 @@ export default function UserTableRow({
   };
 
   const handleDelete = async () => {
+    setLoading(true)
     try {
       const token = localStorage.getItem('token')
       if (token) {
@@ -71,11 +72,16 @@ export default function UserTableRow({
           'Authorization': `Bearer ${token}`
         }
 
-        const deleteUser = await axios.post('http://localhost:3002/user/user-delete', uid, { headers })
+        console.log("UID", UID)
 
+        const deleteUser = await axios.post('http://localhost:3002/user/user-delete/', { "UID": String(UID) }, { headers })
+
+        setLoading(false)
+        handleCloseModal()
         console.log(deleteUser)
       }
     } catch (error) {
+      setLoading(false)
       console.log(error)
     }
   }
@@ -153,7 +159,7 @@ export default function UserTableRow({
 }
 
 UserTableRow.propTypes = {
-  uid: PropTypes.any,
+  UID: PropTypes.any,
   avatarUrl: PropTypes.any,
   company: PropTypes.any,
   handleClick: PropTypes.func,
